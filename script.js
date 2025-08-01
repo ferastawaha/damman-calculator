@@ -1,4 +1,4 @@
-// --- الحصول على العناصر الأساسية للنموذج ---
+// --- الحصول على العناصر الأساسية للنموذج (تأكد من وجودها كلها) ---
 const retirementAgeInput = document.getElementById('retirementAge');
 const genderSelect = document.getElementById('gender');
 const avgSalary36Input = document.getElementById('avgSalary36'); // لـ 3 سنوات (جديد شيخوخة)
@@ -11,15 +11,14 @@ const avgSalaryOldSystemGroup = document.getElementById('avgSalaryOldSystemGroup
 
 const calculateBtn = document.getElementById('calculateBtn');
 const resultSpan = document.getElementById('result');
-const subscriptionsCountInput = document.getElementById('subscriptionsCount');
+const subscriptionsCountInput = document.getElementById('subscriptionsCount'); // هذا العنصر الجديد الذي سيتأثر بوجوده
 const dependentsCountInput = document.getElementById('dependentsCount');
 const firstSubscriptionDateInput = document.getElementById('firstSubscriptionDate');
-const isOldSystemEligibleSelect = document.getElementById('isOldSystemEligible'); // العنصر الجديد
+const isOldSystemEligibleSelect = document.getElementById('isOldSystemEligible');
 
 const OLD_SYSTEM_DATE_THRESHOLD = new Date('2014-03-01T00:00:00'); // تاريخ 1/3/2014
 
-// --- 1. دالة الحصول على نسبة الخصم من الجدول ---
-// (هذه الدالة تبقى كما هي، لا تتغير)
+// --- 1. دالة الحصول على نسبة الخصم من الجدول (تبقى كما هي) ---
 function getEarlyRetirementDiscountPercentage(age, gender) {
     let discount = 0;
 
@@ -55,6 +54,7 @@ function getEarlyRetirementDiscountPercentage(age, gender) {
 function updateSalaryFieldsVisibility() {
     const age = parseInt(retirementAgeInput.value);
     const gender = genderSelect.value;
+    const subsCount = parseInt(subscriptionsCountInput.value); // إضافة هذا المتغير
     const firstSubDate = new Date(firstSubscriptionDateInput.value);
     const isOldSystemEligible = isOldSystemEligibleSelect.value;
 
@@ -68,9 +68,16 @@ function updateSalaryFieldsVisibility() {
     avgSalary60Input.removeAttribute('required'); avgSalary60Input.value = '';
     avgSalaryOldSystemInput.removeAttribute('required'); avgSalaryOldSystemInput.value = '';
 
-    // التحقق الأساسي قبل عرض أي حقول
-    if (isNaN(age) || gender === '' || isOldSystemEligible === '' || isNaN(firstSubDate.getTime())) {
-        return;
+    // التحقق الأساسي قبل عرض أي حقول:
+    // يجب أن تكون هذه الحقول كلها مملوءة لكي تظهر حقول معدل الراتب
+    if (
+        isNaN(age) || age <= 0 ||
+        gender === '' ||
+        isNaN(subsCount) || subsCount <= 0 || // إضافة التحقق من عدد الاشتراكات
+        isNaN(firstSubDate.getTime()) || firstSubscriptionDateInput.value === '' || // التأكد من أن التاريخ المدخل صالح وغير فارغ
+        isOldSystemEligible === ''
+    ) {
+        return; // لا تفعل شيئاً إذا لم يتم ملء جميع الحقول الأساسية
     }
 
     let retirementAgeThreshold = (gender === 'male') ? 60 : 55;
@@ -98,13 +105,15 @@ function updateSalaryFieldsVisibility() {
     }
 }
 
-// --- الاستماع لتغييرات حقول العمر والجنس وتاريخ أول اشتراك والنظام ---
+// --- الاستماع لتغييرات حقول العمر والجنس وعدد الاشتراكات وتاريخ أول اشتراك والنظام ---
 retirementAgeInput.addEventListener('input', updateSalaryFieldsVisibility);
 genderSelect.addEventListener('change', updateSalaryFieldsVisibility);
-firstSubscriptionDateInput.addEventListener('change', updateSalaryFieldsVisibility); // جديد
-isOldSystemEligibleSelect.addEventListener('change', updateSalaryFieldsVisibility); // جديد
+subscriptionsCountInput.addEventListener('input', updateSalaryFieldsVisibility); // جديد: الاستماع لتغيير عدد الاشتراكات
+firstSubscriptionDateInput.addEventListener('change', updateSalaryFieldsVisibility);
+isOldSystemEligibleSelect.addEventListener('change', updateSalaryFieldsVisibility);
 
-// --- دالة حساب المعاش عند الضغط على الزر ---
+
+// --- 3. دالة حساب المعاش عند الضغط على الزر (تبقى كما هي في الأغلب) ---
 calculateBtn.addEventListener('click', function(event) {
     event.preventDefault();
 
@@ -127,9 +136,8 @@ calculateBtn.addEventListener('click', function(event) {
     }
 
     // --- ب. التحقق من صحة المدخلات ---
-    // (التحقق شامل لجميع الحقول)
-    let avgSalary = 0; // سيتم تحديدها لاحقاً بناءً على النظام ونوع التقاعد
-    let isAvgSalaryInputFilled = false; // لمتابعة إذا ما كان حقل معدل الراتب المختار قد تم ملؤه
+    let avgSalary = 0;
+    let isAvgSalaryInputFilled = false;
 
     if (applyOldSystemRules) {
         avgSalary = parseFloat(avgSalaryOldSystemInput.value);
@@ -148,10 +156,10 @@ calculateBtn.addEventListener('click', function(event) {
         isNaN(subsCount) || subsCount <= 0 ||
         isNaN(dependents) || dependents < 0 || dependents > 3 ||
         isNaN(retirementAge) || retirementAge <= 0 ||
-        !isAvgSalaryInputFilled || // التحقق من أن حقل معدل الراتب المرئي تم ملؤه
-        firstSubscriptionDateInput.value === '' || // التحقق من أن حقل التاريخ لم يترك فارغا
+        !isAvgSalaryInputFilled ||
+        firstSubscriptionDateInput.value === '' ||
         gender === '' ||
-        isOldSystemEligible === '' // التحقق من اختيار نعم/لا للنظام القديم
+        isOldSystemEligible === ''
     ) {
         resultSpan.innerHTML = 'الرجاء ملء جميع الحقول المطلوبة بشكل صحيح (أرقام موجبة).';
         resultSpan.style.color = '#dc3545';
@@ -160,13 +168,13 @@ calculateBtn.addEventListener('click', function(event) {
 
     // --- ج. تطبيق خطوات الحساب بناءً على القواعد ---
 
-    let primaryPension = 0; // المعاش الأساسي قبل الخصم والإضافات
-    let finalGeneralIncrease = 0; // الزيادة العامة النهائية
+    let primaryPension = 0;
+    let finalGeneralIncrease = 0;
 
     // 1. حساب المعاش الأساسي: يختلف معامل التقسيم
-    if (applyOldSystemRules) { // النظام القديم: كل معدل الراتب تقسيم 480
+    if (applyOldSystemRules) {
         primaryPension = (avgSalary * subsCount) / 480;
-    } else { // النظام الجديد: أول 1500/480، وما زاد /600
+    } else {
         if (avgSalary <= 1500) {
             primaryPension = (avgSalary * subsCount) / 480;
         } else {
@@ -179,7 +187,7 @@ calculateBtn.addEventListener('click', function(event) {
     }
     primaryPension = parseFloat(primaryPension.toFixed(3));
 
-    let pensionAfterDiscount = primaryPension; // المعاش بعد خصم التقاعد المبكر (إن وجد)
+    let pensionAfterDiscount = primaryPension;
 
     // 2. تطبيق خصم التقاعد المبكر (فقط إذا كان مبكراً)
     if (isEarlyRetirement) {
@@ -193,7 +201,7 @@ calculateBtn.addEventListener('click', function(event) {
     let dependentsAddition = 0;
     const maxDependent1Addition = 100;
     const maxOtherDependentAddition = 25;
-    const newSystemMaxFamilyAllowance = 150; // سقف علاوة العائلة للنظام الجديد
+    const newSystemMaxFamilyAllowance = 150;
 
     if (dependents >= 1) {
         let dependent1Amount = pensionAfterDiscount * 0.12;
@@ -209,15 +217,14 @@ calculateBtn.addEventListener('click', function(event) {
     }
     dependentsAddition = parseFloat(dependentsAddition.toFixed(3));
 
-    if (!applyOldSystemRules) { // إذا كان النظام الجديد، نطبق سقف 150 دينار على مجموع علاوة المعالين
+    if (!applyOldSystemRules) {
         dependentsAddition = Math.min(dependentsAddition, newSystemMaxFamilyAllowance);
     }
 
-
     // 4. الزيادة العامة: تختلف حسب النظام ونوع التقاعد
-    if (applyOldSystemRules) { // النظام القديم: 40 دينار ثابتة
+    if (applyOldSystemRules) {
         finalGeneralIncrease = 40;
-    } else { // النظام الجديد: 20 للمبكر، 40 للشيخوخة
+    } else {
         if (isEarlyRetirement) {
             finalGeneralIncrease = 20;
         } else {
