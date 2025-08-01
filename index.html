@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج حساب التقاعد</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>حاسبة تقديرية للتقاعد</h1>
+        <form id="retirementCalculatorForm">
+
+            <div class="form-group">
+                <label for="gender">الجنس:</label>
+                <select id="gender" name="gender" required>
+                    <option value="">اختر الجنس</option>
+                    <option value="male">ذكر</option>
+                    <option value="female">أنثى</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="retirementAge">العمر عند التقاعد (بالسنوات):</label>
+                <input type="number" id="retirementAge" name="retirementAge" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="subscriptionsCount">عدد الاشتراكات الكلي عند التقاعد (بالأشهر):</label>
+                <input type="number" id="subscriptionsCount" name="subscriptionsCount" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="isOldSystemEligible">هل أكملت الشروط التالية قبل 1/3/2014؟</label>
+                <small>
+                    (للذكور: 216 اشتراك، للإناث: 180 اشتراك)<br>
+                    ملاحظة: إذا كان تاريخ أول اشتراك بعد 1/3/2014، هذا السؤال غير ذو صلة بك وستخضع للنظام الجديد تلقائياً.
+                </small>
+                <select id="isOldSystemEligible" name="isOldSystemEligible" required>
+                    <option value="">اختر</option>
+                    <option value="yes">نعم</option>
+                    <option value="no">لا</option>
+                </select>
+            </div>
+
+
+            <div class="form-group" id="avgSalary36Group" style="display: none;">
+                <label for="avgSalary36">معدل الراتب في آخر 36 اشتراك (3 سنوات) إذا كان تقاعد شيخوخة:</label>
+                <input type="number" id="avgSalary36" name="avgSalary36" min="0" step="0.01">
+                <small> (التقاعد على سن 60 للرجل / 55 للأنثى)</small>
+            </div>
+
+            <div class="form-group" id="avgSalary60Group" style="display: none;">
+                <label for="avgSalary60">معدل الراتب في آخر 60 اشتراك (5 سنوات) إذا كان تقاعد مبكرًا:</label>
+                <input type="number" id="avgSalary60" name="avgSalary60" min="0" step="0.01">
+                <small> (التقاعد قبل الـ 60 للرجل / 55 للأنثى ولو بشهر واحد يُعتبر مبكر)</small>
+            </div>
+
+            <div class="form-group" id="avgSalaryOldSystemGroup" style="display: none;">
+                <label for="avgSalaryOldSystem">معدل الراتب حسب النظام القديم (آخر سنتين للشيخوخة / 3 سنوات للمبكر):</label>
+                <input type="number" id="avgSalaryOldSystem" name="avgSalaryOldSystem" min="0" step="0.01">
+                <small> (لتقاعد الشيخوخة: آخر سنتين - 24 اشتراك، للمبكر: آخر 3 سنوات - 36 اشتراك)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="dependentsCount">عدد المعالين (حد أقصى 3):</label>
+                <input type="number" id="dependentsCount" name="dependentsCount" min="0" max="3" value="0" required>
+                <small>يشمل: زوجة، ابن أقل من 23، بنت غير متزوجة وغير عاملة، أم، أب، أخ، أخت.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="firstSubscriptionDate">تاريخ أول اشتراك لك في الضمان:</label>
+                <input type="date" id="firstSubscriptionDate" name="firstSubscriptionDate" required>
+            </div>
+
+
+            <button type="submit" id="calculateBtn">احسب التقدير</button>
+        </form>
+
+        <div class="result-box">
+            <p><strong>عند الضغط على زر احسب التقدير، سوف يظهر لك مقدار راتبك التقاعدي.</strong> <span id="result"></span></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
