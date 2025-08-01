@@ -34,7 +34,7 @@
                 <label for="isOldSystemEligible">هل أكملت الشروط التالية قبل 1/3/2014؟</label>
                 <small>
                     (للذكور: 216 اشتراك، للإناث: 180 اشتراك)<br>
-                    ملاحظة: إذا كان تاريخ أول اشتراك بعد 1/3/2014، هذا السؤال غير ذو صلة بك وستخضع للنظام الجديد تلقائياً.
+                    ملاحظة: هذا السؤال يحدد تطبيق قواعد النظام القديم أو الجديد.
                 </small>
                 <select id="isOldSystemEligible" name="isOldSystemEligible" required>
                     <option value="">اختر</option>
@@ -67,12 +67,6 @@
                 <input type="number" id="dependentsCount" name="dependentsCount" min="0" max="3" value="0" required>
                 <small>يشمل: زوجة، ابن أقل من 23، بنت غير متزوجة وغير عاملة، أم، أب، أخ، أخت.</small>
             </div>
-
-            <div class="form-group">
-                <label for="firstSubscriptionDate">تاريخ أول اشتراك لك في الضمان:</label>
-                <input type="date" id="firstSubscriptionDate" name="firstSubscriptionDate" required>
-            </div>
-
 
             <button type="submit" id="calculateBtn">احسب التقدير</button>
         </form>
